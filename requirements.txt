@@ -1,0 +1,9 @@
+torch
+transformers>=4.57.0
+datasets>=2.14.0
+accelerate
+safetensors
+spikingjelly
+cupy-cuda12x
+numpy
+wandb

@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+wandb/
+outputs/
+*.log
+snn_rot_new3_110M/
+snn_rot_new3_110M_fused/
+*.safetensors
+bert/
+tokenizer/
