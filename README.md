@@ -40,6 +40,24 @@ pip install .
 
 The `cls.predictions.decoder.*` tensors are tied weights and may be omitted from raw safetensors metadata. `from_pretrained` ties them correctly during loading.
 
+## Pretrained Weights
+
+The pretrained unfused `step_550000` checkpoint is hosted on ModelScope:
+
+[kailai1104/SmoothSpike](https://modelscope.cn/models/kailai1104/SmoothSpike)
+
+Download it into the expected local checkpoint directory:
+
+```bash
+mkdir -p snn_rot_new3_110M/step_550000
+modelscope download \
+  --model kailai1104/SmoothSpike \
+  model.safetensors \
+  --local_dir snn_rot_new3_110M/step_550000
+```
+
+Only the unfused pretrained checkpoint is hosted there. The fused inference checkpoint is generated locally with `convertor.py`.
+
 ## Method Summary
 
 SmoothSpike inserts learnable orthogonal transforms around selected spiking branches:
@@ -100,29 +118,6 @@ model.eval()
 ```
 
 Do not load the fused checkpoint with `spikingbert_rot.py`; that model still expects explicit per-layer `H2` and `H3` parameters. Do not load the unfused checkpoint with `spikingbert_rot_inf.py`; that model expects the fused linear weights.
-
-### Fusion Validation
-
-The fused checkpoint was compared against the original checkpoint on the pretraining validation cache with fixed dynamic MLM masks:
-
-```text
-dataset: data/128_tokenized_data
-split: validation
-model checkpoint: snn_rot_new3_110M/step_550000
-fused checkpoint: snn_rot_new3_110M_fused/step_550000
-batch size: 16
-mlm_probability: 0.15
-seed: 1234
-```
-
-Validation subset results:
-
-| Samples | Original loss | Original PPL | Fused loss | Fused PPL | Delta loss | PPL ratio |
-|---:|---:|---:|---:|---:|---:|---:|
-| 1024 | 1.9169877 | 6.80044 | 1.9163899 | 6.79638 | -0.000598 | 0.99940 |
-| 4096 | 1.9270377 | 6.86913 | 1.9261347 | 6.86293 | -0.000903 | 0.99910 |
-
-Both original and fused models load with no missing or unexpected keys. The small loss/PPL difference is expected because the spiking path contains thresholded LIF neurons; pointwise logits can diverge around threshold boundaries even when aggregate validation loss remains aligned.
 
 ## Pretraining Data
 
